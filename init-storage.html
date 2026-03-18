@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Initialize Storage - AURUM GOLD</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .init-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+        }
+        .success { color: #10b981; }
+        .status-box {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: monospace;
+            border: 1px solid #e5e7eb;
+        }
+    </style>
+</head>
+<body class="light-theme">
+    <div class="init-container glass-card">
+        <h1><i class="fas fa-database gold-text"></i> Initialize <span class="gold-text">Storage</span></h1>
+        <p>Click the button below to initialize localStorage with default data</p>
+        
+        <button id="initBtn" class="btn-primary"><i class="fas fa-sync-alt"></i> Initialize Storage</button>
+        
+        <div id="status" class="status-box">
+            <i class="fas fa-info-circle"></i> Status: Waiting...
+        </div>
+        
+        <div id="credentials" style="display: none;">
+            <h3><i class="fas fa-key"></i> Default Credentials:</h3>
+            <p><i class="fas fa-user"></i> <strong>Client:</strong> client@aurum.com / client123</p>
+            <p><i class="fas fa-user-shield"></i> <strong>Admin:</strong> admin@aurum.com / admin123</p>
+            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                <a href="client-login.html" class="btn-secondary"><i class="fas fa-user"></i> Client Login</a>
+                <a href="admin-login.html" class="btn-secondary"><i class="fas fa-user-shield"></i> Admin Login</a>
+                <a href="index.html" class="btn-secondary"><i class="fas fa-home"></i> Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('initBtn').addEventListener('click', function() {
+            // Clear all existing data
+            localStorage.clear();
+            
+            // Create users
+            const users = [
+                { email: 'client@aurum.com', password: 'client123', role: 'client', wallet: 10000 },
+                { email: 'admin@aurum.com', password: 'admin123', role: 'admin' }
+            ];
+            
+            // Initialize all storage
+            localStorage.setItem('users', JSON.stringify(users));
+            localStorage.setItem('gold_sales', JSON.stringify([]));
+            localStorage.setItem('gold_expenses', JSON.stringify([]));
+            localStorage.setItem('client_purchases', JSON.stringify([]));
+            localStorage.setItem('client_orders', JSON.stringify([]));
+            localStorage.setItem('limit_orders', JSON.stringify([]));
+            
+            // Initialize inventory
+            const initialInventory = [
+                { id: 1, weight: 100, purity: 99.99, status: 'available', date: new Date().toISOString().split('T')[0], source: 'Initial Stock' },
+                { id: 2, weight: 50, purity: 99.5, status: 'available', date: new Date().toISOString().split('T')[0], source: 'Initial Stock' },
+                { id: 3, weight: 25, purity: 99.99, status: 'available', date: new Date().toISOString().split('T')[0], source: 'Initial Stock' },
+                { id: 4, weight: 10, purity: 99.99, status: 'available', date: new Date().toISOString().split('T')[0], source: 'Initial Stock' },
+                { id: 5, weight: 5, purity: 99.9, status: 'available', date: new Date().toISOString().split('T')[0], source: 'Initial Stock' }
+            ];
+            localStorage.setItem('gold_inventory', JSON.stringify(initialInventory));
+            
+            // Update status
+            document.getElementById('status').innerHTML = 
+                '<span class="success"><i class="fas fa-check-circle"></i> Storage initialized successfully!</span><br>' +
+                'Users created: client@aurum.com, admin@aurum.com';
+            
+            document.getElementById('credentials').style.display = 'block';
+            
+            // Disable button
+            document.getElementById('initBtn').disabled = true;
+            document.getElementById('initBtn').innerHTML = '<i class="fas fa-check"></i> Storage Initialized';
+        });
+    </script>
+</body>
+</html>

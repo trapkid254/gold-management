@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - AURUM GOLD</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card glass-card admin-login-card">
+            <div class="login-header">
+                <h2>Admin <span class="gold-text">Access</span></h2>
+                <p>Authorized personnel only</p>
+            </div>
+            
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+            
+            <form id="adminLoginForm" class="login-form">
+                <div class="form-group">
+                    <label for="adminEmail">Admin Email</label>
+                    <input type="email" id="adminEmail" placeholder="admin@aurum.com" value="admin@aurum.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="adminPassword">Password</label>
+                    <input type="password" id="adminPassword" placeholder="••••••••" value="admin123" required>
+                </div>
+                
+                <div class="demo-credentials">
+                    <p>Demo: admin@aurum.com / admin123</p>
+                    <p><a href="init-storage.html" style="color: #fbbf24; font-size: 12px;">Initialize Storage if first time</a></p>
+                </div>
+                
+                <button type="submit" class="btn-primary btn-block">Access Dashboard</button>
+            </form>
+            
+            <div class="login-footer">
+                <a href="index.html">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/storage.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

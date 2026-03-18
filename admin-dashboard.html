@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - AURUM GOLD</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="light-theme">
+    <body class="light-theme">
+    <!-- PASTE THE CODE RIGHT HERE -->
+    <script>
+        // IMMEDIATE AUTHENTICATION CHECK FOR ADMIN
+        (function() {
+            // Check if user is logged in as admin
+            const session = localStorage.getItem('session_user');
+            if (!session) {
+                window.location.href = 'admin-login.html';
+                return;
+            }
+            
+            try {
+                const user = JSON.parse(session);
+                if (user.role !== 'admin') {
+                    window.location.href = 'admin-login.html';
+                    return;
+                }
+            } catch (e) {
+                window.location.href = 'admin-login.html';
+            }
+        })();
+    </script>
+    
+    <div class="dashboard-wrapper">
+        <!-- Rest of your content -->
+    <!-- Admin Navigation -->
+    <nav class="dashboard-nav admin-nav">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-coins gold-text" style="margin-right: 8px;"></i>
+                <span class="gold-text">AURUM</span> ADMIN
+            </div>
+            <div class="nav-menu" id="adminNavMenu">
+                <a href="#dashboard" class="active" onclick="showTab('dashboard')">
+                    <i class="fas fa-chart-pie"></i> Dashboard
+                </a>
+                <a href="#sales" onclick="showTab('sales')">
+                    <i class="fas fa-shopping-cart"></i> Sales
+                </a>
+                <a href="#expenses" onclick="showTab('expenses')">
+                    <i class="fas fa-credit-card"></i> Expenses
+                </a>
+                <a href="#inventory" onclick="showTab('inventory')">
+                    <i class="fas fa-cubes"></i> Inventory
+                </a>
+                <a href="#reports" onclick="showTab('reports')">
+                    <i class="fas fa-chart-line"></i> Reports
+                </a>
+                <a href="#customers" onclick="showTab('customers')">
+                    <i class="fas fa-users"></i> Customers
+                </a>
+            </div>
+            <div class="nav-actions">
+                <div class="live-gold-ticker-admin">
+                    <i class="fas fa-circle" style="color: #10b981; font-size: 10px;"></i>
+                    <span>LIVE GOLD:</span>
+                    <strong id="adminLiveGoldPrice">$1,945.30</strong>
+                    <span id="adminGoldChange" style="color: #10b981;">+0.8%</span>
+                </div>
+                <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
+                <button class="btn-logout" id="adminLogoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Admin Dashboard Content -->
+    <div class="admin-container">
+        <!-- Dashboard Tab (Overview) -->
+        <div id="dashboardTab" class="tab-content active">
+            <!-- Top Metrics Row -->
+            <div class="admin-metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #e3f2fd; color: #1976d2;">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="metric-title">Total Sales</div>
+                    <div class="metric-value" id="totalSalesMetric">$0.00</div>
+                    <div class="metric-sub"><i class="fas fa-calendar-day"></i> Today</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #ffebee; color: #d32f2f;">
+                        <i class="fas fa-arrow-trend-down"></i>
+                    </div>
+                    <div class="metric-title">Total Expenses</div>
+                    <div class="metric-value" id="totalExpensesMetric">$0.00</div>
+                    <div class="metric-sub"><i class="fas fa-calendar-day"></i> Today</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #e8f5e9; color: #2e7d32;">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="metric-title">Net Profit</div>
+                    <div class="metric-value" id="netProfitMetric">$0.00</div>
+                    <div class="metric-change" id="profitChange">
+                        <i class="fas fa-arrow-up"></i> +0.0%
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #fff3e0; color: #ed6c02;">
+                        <i class="fas fa-weight-scale"></i>
+                    </div>
+                    <div class="metric-title">Gold Sold</div>
+                    <div class="metric-value" id="goldSoldMetric">0.00g</div>
+                    <div class="metric-sub"><i class="fas fa-calendar-day"></i> Today</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #f3e5f5; color: #7b1fa2;">
+                        <i class="fas fa-percent"></i>
+                    </div>
+                    <div class="metric-title">Profit Margin</div>
+                    <div class="metric-value" id="profitMarginMetric">0%</div>
+                    <div class="metric-sub" id="profitTarget">Target: 25%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #e1f5fe; color: #0288d1;">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <div class="metric-title">Best Day</div>
+                    <div class="metric-value" id="bestDayMetric">$0</div>
+                    <div class="metric-sub" id="bestDayWeight"><i class="fas fa-weight-hanging"></i> 0g</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #fce4ec; color: #c2185b;">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="metric-title">Top Buyer</div>
+                    <div class="metric-value" id="topBuyerMetric">$0</div>
+                    <div class="metric-sub" id="topBuyerWeight"><i class="fas fa-weight-hanging"></i> 0g</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #e0f2f1; color: #00695c;">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <div class="metric-title">Expense Breakdown</div>
+                    <canvas id="expenseBreakdownChart" style="height: 60px; margin-top: 10px;"></canvas>
+                </div>
+            </div>
+
+            <!-- Live Gold Tracker -->
+            <div class="live-gold-bar glass-card">
+                <div class="live-gold-item">
+                    <i class="fas fa-circle" style="color: #10b981; font-size: 12px;"></i>
+                    <span>LIVE SPOT GOLD</span>
+                    <strong id="spotGoldPrice">$1,945.30</strong>
+                    <span class="gold-change" id="spotGoldChange">+0.8%</span>
+                </div>
+                <div class="live-gold-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Last Update</span>
+                    <strong id="lastUpdate">Just now</strong>
+                </div>
+                <div class="live-gold-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span>24h High/Low</span>
+                    <strong>$1,952.30 / $1,938.20</strong>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="charts-row">
+                <div class="chart-container glass-card">
+                    <h3><i class="fas fa-chart-bar" style="color: #fbbf24;"></i> Monthly Comparison</h3>
+                    <canvas id="monthlyComparisonChart"></canvas>
+                </div>
+                <div class="chart-container glass-card">
+                    <h3><i class="fas fa-chart-simple" style="color: #ef4444;"></i> Sales vs Expenses</h3>
+                    <canvas id="salesVsExpensesChart"></canvas>
+                </div>
+                <div class="chart-container glass-card">
+                    <h3><i class="fas fa-chart-line" style="color: #10b981;"></i> Profit Trend</h3>
+                    <canvas id="profitTrendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="section-header">
+                <h2><i class="fas fa-clock-rotate-left"></i> Recent Transactions</h2>
+                <div class="date-range"><i class="fas fa-calendar"></i> Last 7 days</div>
+            </div>
+            <div class="glass-card">
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-calendar"></i> Date</th>
+                                <th><i class="fas fa-tag"></i> Type</th>
+                                <th><i class="fas fa-info-circle"></i> Details</th>
+                                <th><i class="fas fa-dollar-sign"></i> Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentTransactionsBody">
+                            <tr><td colspan="4" class="text-center">No recent transactions</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sales Tab -->
+        <div id="salesTab" class="tab-content">
+            <div class="section-header">
+                <h2><i class="fas fa-shopping-cart" style="color: #fbbf24;"></i> Daily Sales Tracking</h2>
+                <div class="date-range">
+                    <i class="fas fa-calendar-alt"></i>
+                    <input type="date" id="salesStartDate"> to <input type="date" id="salesEndDate">
+                </div>
+            </div>
+            
+            <div class="glass-card">
+                <form id="salesForm" class="admin-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-user"></i> Buyer Name</label>
+                            <input type="text" id="buyerName" placeholder="Enter buyer name" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-phone"></i> Contact</label>
+                            <input type="text" id="buyerContact" placeholder="Email/Phone">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-weight-scale"></i> Weight (grams)</label>
+                            <input type="number" id="weight" step="0.01" placeholder="0.00" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-gem"></i> Purity (%)</label>
+                            <input type="number" id="purity" min="0" max="100" step="0.1" value="99.9" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-dollar-sign"></i> Price per gram ($)</label>
+                            <input type="number" id="pricePerGramSale" step="0.01" placeholder="0.00" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar"></i> Date</label>
+                            <input type="date" id="saleDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-pen"></i> Notes</label>
+                            <input type="text" id="saleNotes" placeholder="Additional notes">
+                        </div>
+                    </div>
+                    <div class="total-preview">
+                        <i class="fas fa-calculator"></i> Total Value: <span id="saleTotal" class="gold-text">$0.00</span>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Save Sale</button>
+                        <button type="reset" class="btn-secondary"><i class="fas fa-undo"></i> Clear</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="glass-card" style="margin-top: 1.5rem;">
+                <div class="table-responsive">
+                    <table class="data-table" id="salesTable">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-calendar"></i> Date</th>
+                                <th><i class="fas fa-user"></i> Buyer Name</th>
+                                <th><i class="fas fa-weight-scale"></i> Weight (g)</th>
+                                <th><i class="fas fa-gem"></i> Purity</th>
+                                <th><i class="fas fa-dollar-sign"></i> Price/g</th>
+                                <th><i class="fas fa-coins"></i> Total Value</th>
+                                <th><i class="fas fa-phone"></i> Contact</th>
+                                <th><i class="fas fa-pen"></i> Notes</th>
+                                <th><i class="fas fa-cog"></i> Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="salesBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expenses Tab -->
+        <div id="expensesTab" class="tab-content">
+            <div class="section-header">
+                <h2><i class="fas fa-credit-card" style="color: #ef4444;"></i> Expense Logging</h2>
+                <div class="date-range">
+                    <i class="fas fa-calendar-alt"></i>
+                    <input type="date" id="expenseStartDate"> to <input type="date" id="expenseEndDate">
+                </div>
+            </div>
+            
+            <div class="glass-card">
+                <form id="expenseForm" class="admin-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-tag"></i> Category</label>
+                            <select id="expenseType" required>
+                                <option value="transport"><i class="fas fa-truck"></i> Transport</option>
+                                <option value="security"><i class="fas fa-shield"></i> Security</option>
+                                <option value="permits"><i class="fas fa-file-contract"></i> Permits</option>
+                                <option value="supplier"><i class="fas fa-truck-fast"></i> Supplier Payment</option>
+                                <option value="other"><i class="fas fa-ellipsis"></i> Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-dollar-sign"></i> Amount ($)</label>
+                            <input type="number" id="expenseAmount" step="0.01" placeholder="0.00" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar"></i> Date</label>
+                            <input type="date" id="expenseDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-align-left"></i> Description</label>
+                            <input type="text" id="expenseNotes" placeholder="Expense description" required>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Save Expense</button>
+                        <button type="reset" class="btn-secondary"><i class="fas fa-undo"></i> Clear</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="glass-card" style="margin-top: 1.5rem;">
+                <div class="table-responsive">
+                    <table class="data-table" id="expensesTable">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-calendar"></i> Date</th>
+                                <th><i class="fas fa-tag"></i> Category</th>
+                                <th><i class="fas fa-align-left"></i> Description</th>
+                                <th><i class="fas fa-dollar-sign"></i> Amount</th>
+                                <th><i class="fas fa-cog"></i> Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expensesBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Tab -->
+        <div id="inventoryTab" class="tab-content">
+            <div class="section-header">
+                <h2><i class="fas fa-cubes" style="color: #0288d1;"></i> Inventory Management</h2>
+            </div>
+
+            <!-- Mini Stats -->
+            <div class="mini-stats">
+                <div class="mini-stat-item">
+                    <i class="fas fa-box-open" style="color: #0288d1; font-size: 1.5rem;"></i>
+                    <div class="mini-stat-label">Opening Stock</div>
+                    <div class="mini-stat-number" id="openingStock">0g</div>
+                </div>
+                <div class="mini-stat-item">
+                    <i class="fas fa-cart-plus" style="color: #2e7d32; font-size: 1.5rem;"></i>
+                    <div class="mini-stat-label">Gold Purchased</div>
+                    <div class="mini-stat-number" id="goldPurchased">0g</div>
+                </div>
+                <div class="mini-stat-item">
+                    <i class="fas fa-cart-arrow-down" style="color: #ed6c02; font-size: 1.5rem;"></i>
+                    <div class="mini-stat-label">Gold Sold</div>
+                    <div class="mini-stat-number" id="goldSold">0g</div>
+                </div>
+                <div class="mini-stat-item">
+                    <i class="fas fa-warehouse" style="color: #7b1fa2; font-size: 1.5rem;"></i>
+                    <div class="mini-stat-label">Current Stock</div>
+                    <div class="mini-stat-number" id="currentStock">0g</div>
+                </div>
+            </div>
+
+            <!-- Stock Alerts -->
+            <div class="glass-card" style="margin-bottom: 1.5rem;">
+                <h3><i class="fas fa-exclamation-triangle" style="color: #ed6c02;"></i> Stock Alerts</h3>
+                <div id="stockAlerts" class="stock-alerts"></div>
+            </div>
+
+            <!-- Add Stock Form -->
+            <div class="glass-card" style="margin-bottom: 1.5rem;">
+                <h3><i class="fas fa-plus-circle" style="color: #2e7d32;"></i> Add Gold Stock</h3>
+                <form id="inventoryForm" class="admin-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-weight-scale"></i> Weight (grams)</label>
+                            <input type="number" id="stockWeight" step="0.01" placeholder="0.00" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-gem"></i> Purity (%)</label>
+                            <input type="number" id="stockPurity" min="0" max="100" step="0.1" value="99.9" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-truck"></i> Source</label>
+                            <input type="text" id="stockSource" placeholder="Supplier name">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Add to Inventory</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Purchase History -->
+            <div class="glass-card">
+                <h3><i class="fas fa-history"></i> Purchase History</h3>
+                <div class="table-responsive">
+                    <table class="data-table" id="inventoryTable">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-calendar"></i> Date</th>
+                                <th><i class="fas fa-weight-scale"></i> Weight (g)</th>
+                                <th><i class="fas fa-truck"></i> Source</th>
+                                <th><i class="fas fa-dollar-sign"></i> Price</th>
+                                <th><i class="fas fa-cog"></i> Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div id="reportsTab" class="tab-content">
+            <div class="section-header">
+                <h2><i class="fas fa-chart-line" style="color: #10b981;"></i> Reports & Analytics</h2>
+                <div class="date-range">
+                    <i class="fas fa-calendar-alt"></i>
+                    <select id="reportPeriod">
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Summary Stats -->
+            <div class="admin-metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #e3f2fd; color: #1976d2;">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div class="metric-title">Total Transactions</div>
+                    <div class="metric-value" id="totalTransactions">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #f3e5f5; color: #7b1fa2;">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="metric-title">Avg Price/g</div>
+                    <div class="metric-value" id="avgPrice">$0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #fff3e0; color: #ed6c02;">
+                        <i class="fas fa-weight-scale"></i>
+                    </div>
+                    <div class="metric-title">Total Weight Sold</div>
+                    <div class="metric-value" id="totalWeightSold">0g</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #ffebee; color: #d32f2f;">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <div class="metric-title">Total Expenses</div>
+                    <div class="metric-value" id="totalExpensesReport">$0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #e8f5e9; color: #2e7d32;">
+                        <i class="fas fa-percent"></i>
+                    </div>
+                    <div class="metric-title">Profit Margin</div>
+                    <div class="metric-value" id="profitMarginReport">0%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #e1f5fe; color: #0288d1;">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <div class="metric-title">Growth Rate</div>
+                    <div class="metric-value" id="growthRate">0%</div>
+                </div>
+            </div>
+
+            <!-- Detailed Breakdown -->
+            <div class="glass-card">
+                <h3><i class="fas fa-table"></i> Detailed Breakdown</h3>
+                <div class="table-responsive">
+                    <table class="data-table" id="breakdownTable">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-calendar"></i> Period</th>
+                                <th><i class="fas fa-chart-line"></i> Sales</th>
+                                <th><i class="fas fa-credit-card"></i> Expenses</th>
+                                <th><i class="fas fa-coins"></i> Profit</th>
+                                <th><i class="fas fa-weight-scale"></i> Volume</th>
+                                <th><i class="fas fa-dollar-sign"></i> Avg Price</th>
+                            </tr>
+                        </thead>
+                        <tbody id="breakdownBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="charts-row">
+                <div class="chart-container glass-card">
+                    <canvas id="salesChart"></canvas>
+                </div>
+                <div class="chart-container glass-card">
+                    <canvas id="expenseChart"></canvas>
+                </div>
+                <div class="chart-container glass-card">
+                    <canvas id="profitChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customers Tab -->
+        <div id="customersTab" class="tab-content">
+            <div class="section-header">
+                <h2><i class="fas fa-users" style="color: #7b1fa2;"></i> Customer Management</h2>
+            </div>
+
+            <!-- Customer Stats -->
+            <div class="admin-metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #e3f2fd; color: #1976d2;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="metric-title">Total Customers</div>
+                    <div class="metric-value" id="totalCustomers">0</div>
+                </div>
+            </div>
+
+            <!-- Customer Tiers -->
+            <div class="glass-card" style="margin-bottom: 1.5rem;">
+                <h3><i class="fas fa-layer-group"></i> Customer Tiers</h3>
+                <div class="customer-tiers">
+                    <div class="tier-badge platinum">
+                        <i class="fas fa-crown"></i> Platinum: <span id="platinumCount">0</span>
+                    </div>
+                    <div class="tier-badge gold">
+                        <i class="fas fa-star"></i> Gold: <span id="goldCount">0</span>
+                    </div>
+                    <div class="tier-badge silver">
+                        <i class="fas fa-star"></i> Silver: <span id="silverCount">0</span>
+                    </div>
+                    <div class="tier-badge bronze">
+                        <i class="fas fa-star"></i> Bronze: <span id="bronzeCount">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customers Table -->
+            <div class="glass-card">
+                <h3><i class="fas fa-list"></i> Customer List</h3>
+                <div class="table-responsive">
+                    <table class="data-table" id="customersTable">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-envelope"></i> Email</th>
+                                <th><i class="fas fa-dollar-sign"></i> Total Spent</th>
+                                <th><i class="fas fa-weight-scale"></i> Total Gold (g)</th>
+                                <th><i class="fas fa-exchange-alt"></i> Transactions</th>
+                                <th><i class="fas fa-layer-group"></i> Tier</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customersBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/storage.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/trading.js"></script>
+    <script src="js/reports.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

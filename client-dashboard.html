@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Dashboard - AURUM GOLD</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+    // IMMEDIATE AUTHENTICATION CHECK
+    (function() {
+        // Check if user is logged in as client
+        const session = localStorage.getItem('session_user');
+        if (!session) {
+            window.location.href = 'client-login.html';
+            return;
+        }
+        
+        try {
+            const user = JSON.parse(session);
+            if (user.role !== 'client') {
+                window.location.href = 'client-login.html';
+                return;
+            }
+        } catch (e) {
+            window.location.href = 'client-login.html';
+        }
+    })();
+</script>
+</head>
+<body class="light-theme">
+    <!-- Dashboard Navigation -->
+    <nav class="dashboard-nav">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-coins gold-text" style="margin-right: 8px;"></i>
+                <span class="gold-text">AURUM</span> CLIENT
+            </div>
+            <div class="nav-menu" id="clientNavMenu">
+                <a href="#dashboard" class="active" onclick="showClientTab('dashboard')">
+                    <i class="fas fa-chart-pie"></i> Dashboard
+                </a>
+                <a href="#trade" onclick="showClientTab('trade')">
+                    <i class="fas fa-exchange-alt"></i> Trade
+                </a>
+                <a href="#orders" onclick="showClientTab('orders')">
+                    <i class="fas fa-clock"></i> Orders
+                </a>
+                <a href="#history" onclick="showClientTab('history')">
+                    <i class="fas fa-history"></i> History
+                </a>
+                <a href="#portfolio" onclick="showClientTab('portfolio')">
+                    <i class="fas fa-chart-bar"></i> Portfolio
+                </a>
+            </div>
+            <div class="nav-actions">
+                <div class="live-gold-ticker">
+                    <i class="fas fa-circle" style="color: #10b981; font-size: 10px;"></i>
+                    <span id="clientLiveGold">$1,945.30</span>
+                </div>
+                <span class="wallet-balance" id="walletBalance">
+                    <i class="fas fa-wallet"></i> $10,000
+                </span>
+                <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
+                <button class="btn-logout" id="logoutBtn"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Live Price Bar -->
+    <div class="price-bar">
+        <div class="price-item">
+            <i class="fas fa-circle" style="color: #10b981; font-size: 10px;"></i>
+            <span>Live Gold</span>
+            <strong id="dashboardGoldPrice">$1,945.30</strong>
+        </div>
+        <div class="price-item">
+            <i class="fas fa-arrow-up" style="color: #10b981;"></i>
+            <span>Bid</span>
+            <strong id="bidPrice">$1,945.30</strong>
+        </div>
+        <div class="price-item">
+            <i class="fas fa-arrow-down" style="color: #ef4444;"></i>
+            <span>Ask</span>
+            <strong id="askPrice">$1,946.30</strong>
+        </div>
+        <div class="price-item">
+            <i class="fas fa-chart-line" style="color: #fbbf24;"></i>
+            <span>Spread</span>
+            <strong id="spread">$1.00</strong>
+        </div>
+        <div class="price-item">
+            <i class="fas fa-wallet" style="color: #fbbf24;"></i>
+            <span>Your Wallet</span>
+            <strong id="walletDisplay">$10,000.00</strong>
+        </div>
+    </div>
+
+    <!-- Dashboard Main Content -->
+    <div class="dashboard-container">
+        <!-- Dashboard Tab -->
+        <div id="dashboardTab" class="client-tab-content active">
+            <!-- Wallet Overview Card -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #e3f2fd; color: #1976d2;">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="metric-title">Wallet Balance</div>
+                    <div class="metric-value" id="walletMetric">$10,000.00</div>
+                    <div class="metric-sub"><i class="fas fa-check-circle" style="color: #10b981;"></i> Available</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #e8f5e9; color: #2e7d32;">
+                        <i class="fas fa-weight-scale"></i>
+                    </div>
+                    <div class="metric-title">Gold Holdings</div>
+                    <div class="metric-value" id="goldHoldings">0.00g</div>
+                    <div class="metric-sub"><i class="fas fa-coins"></i> Total value: <span id="holdingsValue">$0.00</span></div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #fff3e0; color: #ed6c02;">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="metric-title">Total Spent</div>
+                    <div class="metric-value" id="totalSpent">$0.00</div>
+                    <div class="metric-sub"><i class="fas fa-calendar"></i> Lifetime</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #f3e5f5; color: #7b1fa2;">
+                        <i class="fas fa-percent"></i>
+                    </div>
+                    <div class="metric-title">ROI</div>
+                    <div class="metric-value" id="roi">0%</div>
+                    <div class="metric-sub"><i class="fas fa-chart-line"></i> +0.0% today</div>
+                </div>
+            </div>
+
+            <!-- Market Overview -->
+            <div class="glass-card market-overview">
+                <h3><i class="fas fa-chart-line" style="color: #fbbf24;"></i> Market Overview</h3>
+                <div class="market-stats-grid">
+                    <div class="market-stat">
+                        <span class="stat-label">24h Change</span>
+                        <span class="stat-value positive" id="dailyChange">+0.8%</span>
+                    </div>
+                    <div class="market-stat">
+                        <span class="stat-label">24h High</span>
+                        <span class="stat-value" id="dailyHigh">$1,952.30</span>
+                    </div>
+                    <div class="market-stat">
+                        <span class="stat-label">24h Low</span>
+                        <span class="stat-value" id="dailyLow">$1,938.20</span>
+                    </div>
+                    <div class="market-stat">
+                        <span class="stat-label">24h Volume</span>
+                        <span class="stat-value" id="dailyVolume">1,234 oz</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Available Inventory -->
+            <div class="section-header">
+                <h2><i class="fas fa-cubes" style="color: #fbbf24;"></i> Available Gold Products</h2>
+                <div class="date-range"><i class="fas fa-store"></i> Live Market</div>
+            </div>
+            
+            <div class="products-grid" id="clientInventory">
+                <!-- Inventory loaded dynamically -->
+            </div>
+        </div>
+
+        <!-- Trade Tab -->
+        <div id="tradeTab" class="client-tab-content">
+            <div class="trading-container">
+                <!-- Trading Charts -->
+                <div class="trading-charts">
+                    <div class="chart-controls">
+                        <button class="chart-time-btn active" data-time="1H">1H</button>
+                        <button class="chart-time-btn" data-time="24H">24H</button>
+                        <button class="chart-time-btn" data-time="1W">1W</button>
+                        <button class="chart-time-btn" data-time="1M">1M</button>
+                        <button class="chart-time-btn" data-time="1Y">1Y</button>
+                    </div>
+                    <canvas id="tradingChart" height="300"></canvas>
+                </div>
+
+                <!-- Trading Panel -->
+                <div class="trading-panel glass-card">
+                    <div class="trading-type-selector">
+                        <button class="trade-type-btn active" data-type="buy">
+                            <i class="fas fa-arrow-up" style="color: #10b981;"></i> BUY
+                        </button>
+                        <button class="trade-type-btn" data-type="sell">
+                            <i class="fas fa-arrow-down" style="color: #ef4444;"></i> SELL
+                        </button>
+                    </div>
+
+                    <div class="current-price-display">
+                        <span class="label">Current Price</span>
+                        <span class="price" id="tradeCurrentPrice">$1,945.30</span>
+                        <span class="change positive" id="tradePriceChange">+0.8%</span>
+                    </div>
+
+                    <form id="tradeForm">
+                        <input type="hidden" id="tradeType" value="buy">
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-weight-scale"></i> Amount (grams)</label>
+                            <input type="number" id="tradeAmount" step="0.1" min="0.1" placeholder="0.00" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class="fas fa-dollar-sign"></i> Price per gram</label>
+                            <input type="number" id="tradePrice" step="0.01" readonly>
+                        </div>
+
+                        <div class="order-preview">
+                            <div class="preview-row">
+                                <span>Total Value:</span>
+                                <span class="total-value" id="tradeTotal">$0.00</span>
+                            </div>
+                            <div class="preview-row">
+                                <span>Fee (0.1%):</span>
+                                <span class="fee-value" id="tradeFee">$0.00</span>
+                            </div>
+                            <div class="preview-row total">
+                                <span>Final Total:</span>
+                                <span class="final-value" id="tradeFinal">$0.00</span>
+                            </div>
+                        </div>
+
+                        <div class="available-info">
+                            <i class="fas fa-info-circle"></i>
+                            <span id="availableInfo">Available to buy: 190g</span>
+                        </div>
+
+                        <button type="submit" class="btn-primary btn-block" id="tradeSubmitBtn">
+                            <i class="fas fa-arrow-up"></i> Buy Gold
+                        </button>
+                    </form>
+
+                    <!-- Order Book -->
+                    <div class="order-book">
+                        <h4><i class="fas fa-book"></i> Order Book</h4>
+                        <div class="order-book-grid">
+                            <div class="order-book-header">
+                                <span>Price</span>
+                                <span>Amount (g)</span>
+                                <span>Total</span>
+                            </div>
+                            <div class="order-book-asks" id="orderBookAsks">
+                                <!-- Sell orders -->
+                            </div>
+                            <div class="order-book-spread">
+                                <span>Spread: $1.00</span>
+                            </div>
+                            <div class="order-book-bids" id="orderBookBids">
+                                <!-- Buy orders -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Tab -->
+        <div id="ordersTab" class="client-tab-content">
+            <div class="section-header">
+                <h2><i class="fas fa-clock"></i> Open Orders</h2>
+                <div class="order-filters">
+                    <select id="orderFilter">
+                        <option value="all">All Orders</option>
+                        <option value="buy">Buy Orders</option>
+                        <option value="sell">Sell Orders</option>
+                        <option value="pending">Pending</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <div class="table-responsive">
+                    <table class="data-table" id="openOrdersTable">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-clock"></i> Date</th>
+                                <th><i class="fas fa-tag"></i> Type</th>
+                                <th><i class="fas fa-weight-scale"></i> Amount (g)</th>
+                                <th><i class="fas fa-dollar-sign"></i> Price</th>
+                                <th><i class="fas fa-calculator"></i> Total</th>
+                                <th><i class="fas fa-info-circle"></i> Status</th>
+                                <th><i class="fas fa-cog"></i> Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="openOrdersBody">
+                            <tr><td colspan="7" class="text-center">No open orders</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Tab -->
+        <div id="historyTab" class="client-tab-content">
+            <div class="section-header">
+                <h2><i class="fas fa-history"></i> Transaction History</h2>
+                <div class="date-range">
+                    <i class="fas fa-calendar-alt"></i>
+                    <input type="date" id="historyStartDate"> to <input type="date" id="historyEndDate">
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <div class="table-responsive">
+                    <table class="data-table" id="historyTable">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-calendar"></i> Date</th>
+                                <th><i class="fas fa-tag"></i> Type</th>
+                                <th><i class="fas fa-weight-scale"></i> Amount (g)</th>
+                                <th><i class="fas fa-dollar-sign"></i> Price/g</th>
+                                <th><i class="fas fa-calculator"></i> Total</th>
+                                <th><i class="fas fa-check-circle"></i> Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyBody">
+                            <tr><td colspan="6" class="text-center">No transaction history</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Portfolio Tab -->
+        <div id="portfolioTab" class="client-tab-content">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #e3f2fd; color: #1976d2;">
+                        <i class="fas fa-weight-scale"></i>
+                    </div>
+                    <div class="metric-title">Total Gold</div>
+                    <div class="metric-value" id="portfolioTotalGold">0.00g</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #e8f5e9; color: #2e7d32;">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="metric-title">Current Value</div>
+                    <div class="metric-value" id="portfolioCurrentValue">$0.00</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #fff3e0; color: #ed6c02;">
+                        <i class="fas fa-arrow-trend-up"></i>
+                    </div>
+                    <div class="metric-title">Total Profit/Loss</div>
+                    <div class="metric-value" id="portfolioPnL">$0.00</div>
+                    <div class="metric-sub" id="portfolioPnLPercent">0%</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #f3e5f5; color: #7b1fa2;">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <div class="metric-title">Avg Buy Price</div>
+                    <div class="metric-value" id="portfolioAvgPrice">$0.00</div>
+                </div>
+            </div>
+
+            <div class="glass-card">
+                <h3><i class="fas fa-chart-pie"></i> Portfolio Distribution</h3>
+                <canvas id="portfolioChart" height="300"></canvas>
+            </div>
+
+            <div class="glass-card">
+                <h3><i class="fas fa-list"></i> Holdings Breakdown</h3>
+                <div class="table-responsive">
+                    <table class="data-table" id="holdingsTable">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-calendar"></i> Purchase Date</th>
+                                <th><i class="fas fa-weight-scale"></i> Weight (g)</th>
+                                <th><i class="fas fa-gem"></i> Purity</th>
+                                <th><i class="fas fa-dollar-sign"></i> Buy Price</th>
+                                <th><i class="fas fa-chart-line"></i> Current Value</th>
+                                <th><i class="fas fa-arrow-trend-up"></i> Profit/Loss</th>
+                            </tr>
+                        </thead>
+                        <tbody id="holdingsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/storage.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/trading.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>
